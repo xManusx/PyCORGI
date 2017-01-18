@@ -2,6 +2,9 @@
 
 import scipy.io.wavfile as wav
 import argparse
+import transformer
+import matplotlib.pyplot as plt
+import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument("file", help="A WAV File, desireably containing some music")
@@ -16,3 +19,13 @@ print(samples.size)
 print(samplerate)
 print(samples.size/samplerate)
 
+#trans = transformer.Transformer(4400, 2200, samplerate)
+#stft = trans.stft(samples)
+#gpec = trans.spectrogram(stft)
+#trans.plotSpectrogram(spec)
+#log = trans.logFrequencySpectrogram(spec)
+#plt.imshow(np.transpose(log))
+#plt.show()
+#chromas = trans.chroma(log)
+#plt.imshow(np.transpose(chromas))
+#plt.show()
