@@ -5,6 +5,7 @@ import argparse
 import transformer
 import matplotlib.pyplot as plt
 import numpy as np
+import templates
 
 parser = argparse.ArgumentParser()
 parser.add_argument("file", help="A WAV File, desireably containing some music")
@@ -14,10 +15,6 @@ args = parser.parse_args()
 samplerate,samples = wav.read(args.file)
 windowsize = args.windowlength*samplerate
 hopsize = 0.5*windowsize
-
-print(samples.size)
-print(samplerate)
-print(samples.size/samplerate)
 
 #trans = transformer.Transformer(4400, 2200, samplerate)
 #stft = trans.stft(samples)

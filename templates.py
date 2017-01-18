@@ -32,12 +32,13 @@ def binary():
 Returns templates using some (whacky) assumptions about harmonics
 """
 def harmonics(alpha = 0.8):
-    ret = np.zeros((24,11))
-    tone = np.zeros((11))
+    tone = np.zeros((12))
     tone[0] = 1+alpha+pow(alpha,3)+pow(alpha,7)
     tone[4] = pow(alpha,4)
     tone[7] = pow(alpha,2) + pow(alpha,5)
     tone[10] = pow(alpha,6)
+
+    ret = np.zeros((24,12))
     ret[0] = tone + np.roll(tone,4) + np.roll(tone,7)
     ret[12] = tone + np.roll(tone,3) + np.roll(tone,7)
 
@@ -52,13 +53,13 @@ Returns templates using some (whacky) assumptions about harmonics
 Entries for each chord are normalised to 1
 """
 def harmonics_norm(alpha = 0.8):
-    tone = np.zeros((11))
+    tone = np.zeros((12))
     tone[0] = 1+alpha+pow(alpha,3)+pow(alpha,7)
     tone[4] = pow(alpha,4)
     tone[7] = (pow(alpha,2) + pow(alpha,5))
     tone[10] = pow(alpha,6)
 
-    ret = np.zeros((24,11))
+    ret = np.zeros((24,12))
     ret[0] = tone + np.roll(tone,4) + np.roll(tone,7)
     ret[0] /= np.amax(ret[0])
 
