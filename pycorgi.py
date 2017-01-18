@@ -2,6 +2,7 @@
 
 import scipy.io.wavfile as wav
 import argparse
+import templates
 
 parser = argparse.ArgumentParser()
 parser.add_argument("file", help="A WAV File, desireably containing some music")
@@ -15,4 +16,3 @@ hopsize = 0.5*windowsize
 print(samples.size)
 print(samplerate)
 print(samples.size/samplerate)
-
