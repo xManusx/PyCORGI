@@ -9,6 +9,13 @@ ret[0][0] corresponds to the energy of the C band
 in a C major chord
 """
 
+def std_chords():
+    chords = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    chordsm = [x + "m" for x in chords]
+    chords.extend(chordsm)
+    return chords
+
+
 """
 Returns binary templates
 """
@@ -25,7 +32,7 @@ def binary():
         ret[i] = np.roll(ret[0],  i)
         ret[i+12] = np.roll(ret[12],  i)
 
-    return ret
+    return ret, std_chords()
 
 
 """
@@ -46,7 +53,7 @@ def harmonics(alpha = 0.8):
         ret[i] = np.roll(ret[0],  i)
         ret[i+12] = np.roll(ret[12],  i)
 
-    return ret
+    return ret, std_chords()
 
 """
 Returns templates using some (whacky) assumptions about harmonics
@@ -70,4 +77,4 @@ def harmonics_norm(alpha = 0.8):
         ret[i] = np.roll(ret[0],  i)
         ret[i+12] = np.roll(ret[12],  i)
 
-    return ret
+    return ret, std_chords()
