@@ -23,6 +23,6 @@ def synthesize_chord(chordIndex, samplerate, numberOfFrames):
   WAVEDATA = []
 
   for x in range(numberOfFrames):
-      WAVEDATA.append(int(math.sin(x/((samplerate/FREQUENCY1)/math.pi))*127+128)+int(math.sin(x/((samplerate/FREQUENCY2)/math.pi))*127+128) + int(math.sin(x/((samplerate/FREQUENCY3)/math.pi))*127+128))    
+      WAVEDATA.append(math.sin(x/((samplerate/FREQUENCY1)/math.pi))*127 + math.sin(x/((samplerate/FREQUENCY2)/math.pi))*127 + math.sin(x/((samplerate/FREQUENCY3)/math.pi))*127)    
       
   return np.array(WAVEDATA)
