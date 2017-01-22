@@ -80,9 +80,9 @@ for c in chords:
 synthwav = np.delete(synthwav, np.s_[len(samples)::], axis=0)
 
 ##Write to output.wav
-m = np.matrix([synthwav, samples])
-print(m.shape)
-librosa.output.write_wav(path='output.wav', y=m, sr=samplerate)
+m = np.matrix([synthwav / np.linalg.norm(synthwav), samples])
+
+librosa.output.write_wav(path='output.wav', y=m, sr=samplerate, norm=False)
 
 #example of how to plot
 #plt.subplot(4, 2, 5)
