@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import math
 import librosa
 import numpy as np
@@ -19,15 +17,12 @@ def synthesize_chord(chordIndex, samplerate, numberOfFrames):
       FREQUENCY2 = math.pow(2, ((chord+3-69)/12.0))*440;
 
   if FREQUENCY1 > samplerate:
-      BITRATE = FREQUENCY1+100
+      samplerate = FREQUENCY1+100
 
   #RESTFRAMES = NUMBEROFFRAMES % BITRATE
   WAVEDATA = []
 
   for x in range(numberOfFrames):
       WAVEDATA.append(int(math.sin(x/((samplerate/FREQUENCY1)/math.pi))*127+128)+int(math.sin(x/((samplerate/FREQUENCY2)/math.pi))*127+128) + int(math.sin(x/((samplerate/FREQUENCY3)/math.pi))*127+128))    
-
-  #for x in range(RESTFRAMES): 
-      #WAVEDATA.append(128)
       
   return np.array(WAVEDATA)
