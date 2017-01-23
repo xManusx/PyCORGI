@@ -36,6 +36,7 @@ parser.add_argument("--flat", help="Output chords with flats instead of shaprs",
 args = parser.parse_args()
 
 samples, samplerate = librosa.core.load(args.file)
+samples = librosa.core.to_mono(samples)
 windowsize = args.windowlength*samplerate
 hopsize = 0.5*windowsize
 
@@ -84,7 +85,7 @@ for c in chords:
 synthwav = np.delete(synthwav, np.s_[len(samples)::], axis=0)
 
 ##Write to output.wav
-m = np.matrix([synthwav / np.linalg.norm(synthwav), samples])
+m = np.matrix([synthwav / np.linalg.norm(synthwav)*50, samples])
 
 librosa.output.write_wav(path='output.wav', y=m, sr=samplerate, norm=False)
 
