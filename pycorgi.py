@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import transformer
 import templates
 import recognition
+import synthesizer
 
 
 """
@@ -66,6 +67,26 @@ chords = recognition.recognition(temps, np.transpose(chromas))
 
 simple_text_output(chords,labels)
 
+"""
+Get the recognized chord and synthesize it
+"""
+
+synthwav = None
+for c in chords:
+    chord = np.argmax(c)
+    synth = synthesizer.synthesize_chord(chord, samplerate/2, int((samplerate/2)*args.windowlength))
+    
+    if synthwav is None:
+      synthwav = synth
+    else:
+      synthwav = np.concatenate((synthwav, synth))
+
+synthwav = np.delete(synthwav, np.s_[len(samples)::], axis=0)
+
+##Write to output.wav
+m = np.matrix([synthwav / np.linalg.norm(synthwav), samples])
+
+librosa.output.write_wav(path='output.wav', y=m, sr=samplerate, norm=False)
 
 #example of how to plot
 #plt.subplot(4, 2, 5)
