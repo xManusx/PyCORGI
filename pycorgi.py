@@ -28,29 +28,26 @@ def simple_text_output(chords, labels):
     for i in range(chords.shape[0]):
         print("{a:8.2f}: {b}".format(a=i*0.5*args.windowlength, b=labels[np.argmax(chords[i])]))
 
+    
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("file", help="A WAV File, desireably containing some music")
 parser.add_argument("-N", "--windowlength", help="Windowlength to use for the STFT [seconds]", type=float, default=0.2)
-parser.add_argument("--flat", help="Output chords with flats instead of shaprs", action="store_true")
 args = parser.parse_args()
 
 samples, samplerate = librosa.core.load(args.file)
-samples = librosa.core.to_mono(samples)
 windowsize = args.windowlength*samplerate
 hopsize = 0.5*windowsize
 
 chromas = 0 #initialise variable
-use_HPSS = True
+use_HPSS = False
 if(use_HPSS):
     """
     Not ideal => does hpss then transforms back into audio time series
     """
-    #harm = librosa.effects.harmonic(samples)
     harm, perc = librosa.effects.hpss(samples)
     chromas = librosa.feature.chroma_stft(y=harm, sr=samplerate, n_fft=windowsize, hop_length=hopsize, tuning=librosa.core.estimate_tuning(y=samples, sr=samplerate))
-    librosa.output.write_wav("/tmp/perc.wav", perc, samplerate)
-    librosa.output.write_wav("/tmp/harm.wav", harm, samplerate)
 
 else:
     chromas = librosa.feature.chroma_stft(y=samples, sr=samplerate, n_fft=windowsize, hop_length=hopsize, tuning=librosa.core.estimate_tuning(y=samples, sr=samplerate))
@@ -58,24 +55,23 @@ else:
 
 temps = 0
 labels = 0
-use_harmonics = True
+use_harmonics = False
 if(use_harmonics):
-    temps, labels = templates.harmonics(0.01, args.flat)
+    temps, labels = templates.harmonics_norm()
 else:
-    temps, labels = templates.binary(args.flat)
+    temps, labels = templates.binary()
 
 chords = recognition.recognition(temps, np.transpose(chromas))
+
 
 simple_text_output(chords,labels)
 
 """
 Get the recognized chord and synthesize it
 """
-
 synthwav = None
 for c in chords:
-    chord = np.argmax(c)
-    synth = synthesizer.synthesize_chord(chord, samplerate/2, int((samplerate/2)*args.windowlength))
+    synth = synthesizer.synthesize_chord(np.argmax(c), samplerate, windowsize)
     
     if synthwav is None:
       synthwav = synth
@@ -85,7 +81,7 @@ for c in chords:
 synthwav = np.delete(synthwav, np.s_[len(samples)::], axis=0)
 
 ##Write to output.wav
-m = np.matrix([synthwav / np.linalg.norm(synthwav)*50, samples])
+m = np.matrix([100*synthwav / np.linalg.norm(synthwav), samples])
 
 librosa.output.write_wav(path='output.wav', y=m, sr=samplerate, norm=False)
 
