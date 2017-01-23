@@ -31,6 +31,7 @@ def simple_text_output(chords, labels):
 parser = argparse.ArgumentParser()
 parser.add_argument("file", help="A WAV File, desireably containing some music")
 parser.add_argument("-N", "--windowlength", help="Windowlength to use for the STFT [seconds]", type=float, default=0.2)
+parser.add_argument("--flat", help="Output chords with flats instead of shaprs", action="store_true")
 args = parser.parse_args()
 
 samples, samplerate = librosa.core.load(args.file)
@@ -38,13 +39,16 @@ windowsize = args.windowlength*samplerate
 hopsize = 0.5*windowsize
 
 chromas = 0 #initialise variable
-use_HPSS = False
+use_HPSS = True
 if(use_HPSS):
     """
     Not ideal => does hpss then transforms back into audio time series
     """
+    #harm = librosa.effects.harmonic(samples)
     harm, perc = librosa.effects.hpss(samples)
     chromas = librosa.feature.chroma_stft(y=harm, sr=samplerate, n_fft=windowsize, hop_length=hopsize, tuning=librosa.core.estimate_tuning(y=samples, sr=samplerate))
+    librosa.output.write_wav("/tmp/perc.wav", perc, samplerate)
+    librosa.output.write_wav("/tmp/harm.wav", harm, samplerate)
 
 else:
     chromas = librosa.feature.chroma_stft(y=samples, sr=samplerate, n_fft=windowsize, hop_length=hopsize, tuning=librosa.core.estimate_tuning(y=samples, sr=samplerate))
@@ -52,11 +56,11 @@ else:
 
 temps = 0
 labels = 0
-use_harmonics = False
+use_harmonics = True
 if(use_harmonics):
-    temps, labels = templates.harmonics_norm()
+    temps, labels = templates.harmonics(0.01, args.flat)
 else:
-    temps, labels = templates.binary()
+    temps, labels = templates.binary(args.flat)
 
 chords = recognition.recognition(temps, np.transpose(chromas))
 

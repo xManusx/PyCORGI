@@ -9,8 +9,12 @@ ret[0][0] corresponds to the energy of the C band
 in a C major chord
 """
 
-def std_chords():
-    chords = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+def std_chords(flat=False):
+    chords = 0
+    if(flat):
+        chords = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+    else:
+        chords = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
     chordsm = [x + "m" for x in chords]
     chords.extend(chordsm)
     return chords
@@ -19,7 +23,7 @@ def std_chords():
 """
 Returns binary templates
 """
-def binary():
+def binary(flat=False):
     ret = np.zeros((24, 12))
     ret[0][0] = 1
     ret[0][4] = 1
@@ -32,13 +36,13 @@ def binary():
         ret[i] = np.roll(ret[0],  i)
         ret[i+12] = np.roll(ret[12],  i)
 
-    return ret, std_chords()
+    return ret, std_chords(flat)
 
 
 """
 Returns templates using some (whacky) assumptions about harmonics
 """
-def harmonics(alpha = 0.8):
+def harmonics(alpha = 0.8, flat=False):
     tone = np.zeros((12))
     tone[0] = 1+alpha+pow(alpha,  3)+pow(alpha, 7)
     tone[4] = pow(alpha, 4)
@@ -53,13 +57,13 @@ def harmonics(alpha = 0.8):
         ret[i] = np.roll(ret[0],  i)
         ret[i+12] = np.roll(ret[12],  i)
 
-    return ret, std_chords()
+    return ret, std_chords(flat)
 
 """
 Returns templates using some (whacky) assumptions about harmonics
 Entries for each chord are normalised to 1
 """
-def harmonics_norm(alpha = 0.8):
+def harmonics_norm(alpha = 0.8, flat=False):
     tone = np.zeros((12))
     tone[0] = 1+alpha+pow(alpha, 3)+pow(alpha, 7)
     tone[4] = pow(alpha, 4)
@@ -77,4 +81,4 @@ def harmonics_norm(alpha = 0.8):
         ret[i] = np.roll(ret[0],  i)
         ret[i+12] = np.roll(ret[12],  i)
 
-    return ret, std_chords()
+    return ret, std_chords(flat)
