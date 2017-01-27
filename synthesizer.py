@@ -2,10 +2,14 @@ import math
 import librosa
 import numpy as np
 
-def synthesize_chord(chordIndex, samplerate, samples):
-    #print(samplerate)
-    #print(samples)
-    #chordIndex 0: CMajor, chordIndex 12: CMinor
+def synthChord(chordSequenceEntry,labels,samplerate):
+    dic = {}
+    counter = 73
+    for i in labels:
+        dic[i] = counter
+        counter += 1
+    chordIndex = dic[chordSequenceEntry[0]]
+
     chord = 73 + (chordIndex % 12)
   
     FREQUENCY1 = math.pow(2, ((chord-69)/12.0))*440;
@@ -22,12 +26,29 @@ def synthesize_chord(chordIndex, samplerate, samples):
     if FREQUENCY1 > samplerate:
         samplerate = FREQUENCY1+100
 
-    # samplerate = samples -> 1 sekunde
-    # samplerate = 0.5 samples -> 2 sekunden
     #print(samples/samplerate)
-    t = np.linspace(0.0, samples/samplerate, num=samples)
-    #print(t)
+    duration = chordSequenceEntry[2]-chordSequenceEntry[1]
+    t = np.linspace(0.0, duration, num=duration*samplerate)
     wave1 = np.sin(2*np.pi*t*FREQUENCY1)
     wave2 = np.sin(2*np.pi*t*FREQUENCY2)
     wave3 = np.sin(2*np.pi*t*FREQUENCY3)
     return wave1+wave2+wave3
+
+
+def synthChords(chordSequence, labels, samples, samplerate):
+    """
+    #Get the recognized chord and synthesize it
+    #"""
+    synthwav = None
+    for c in chordSequence:
+        synth = synthChord(c, labels, samplerate)
+        if synthwav is None:
+          synthwav = synth
+        else:
+          synthwav = np.concatenate((synthwav, synth))
+
+    synthwav = np.delete(synthwav, np.s_[len(samples)::], axis=0)
+    
+    ###Write to output.wav
+    m = np.matrix([100*synthwav / np.linalg.norm(synthwav), samples])
+    librosa.output.write_wav(path='output.wav', y=m, sr=samplerate, norm=False)
