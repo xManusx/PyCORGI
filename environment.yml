@@ -33,5 +33,6 @@ dependencies:
 - wheel=0.29.0=py35_0
 - xz=5.2.2=1
 - zlib=1.2.8=3
+- pillow=4.0.0
 prefix: /Users/deepsheaper/miniconda3/envs/mpa
 

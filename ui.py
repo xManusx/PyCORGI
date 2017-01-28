@@ -58,29 +58,29 @@ class UI:
         self.windowsize.move(10, self.height-170)
         self.windowsize.setFixedWidth(50)
         #hopsize
-        self.hopsize = QLineEdit("0.1", self.w)
+        self.hopsize = QLineEdit("0.5", self.w)
         self.hopsize.move(10, self.height-150)
         self.hopsize.setFixedWidth(50)
         
         ## Labels for Textboxes
         self.windowsizeLabel = QLabel("Window Size (seconds)", self.w)
         self.windowsizeLabel.move(self.windowsize.x()+ self.windowsize.width() + 5, self.windowsize.y())
-        self.hopsizeLabel = QLabel("Hop Size (seconds)", self.w)
+        self.hopsizeLabel = QLabel("Hop Size (fractions of Window Size)", self.w)
         self.hopsizeLabel.move(self.hopsize.x()+ self.hopsize.width() + 5, self.hopsize.y())
 
         #Checkbox
         #Use hpss
         self.hpss = QCheckBox("Use HPSS", self.w)
         self.hpss.setChecked(True)
-        self.hpss.move(230, self.height - 170)
+        self.hpss.move(300, self.height - 170)
         #Print output
         self.output = QCheckBox("Console output", self.w)
         self.output.setChecked(False)
-        self.output.move(230, self.height - 150)
+        self.output.move(300, self.height - 150)
         #Synthesize chords
         self.synth = QCheckBox("Synthesize Chords", self.w)
         self.synth.setChecked(False)
-        self.synth.move(230, self.height - 130)       
+        self.synth.move(300, self.height - 130)       
 
         # Radio Buttons  
         self.binary = QRadioButton("Binary Templates", self.w)
@@ -129,7 +129,7 @@ class UI:
         if hpss:
             samples, _ = recognition.HPSS(samples)
         windowSizeInSamples = windowSize*samplerate
-        hopSizeInSamples = hopSize*samplerate
+        hopSizeInSamples = hopSize*windowSizeInSamples
 
         chromas = recognition.calculateChroma(samples, samplerate, windowSizeInSamples, hopSizeInSamples)
         chords, temps, labels = recognition.calculateSimilarities(chromas, use_harmonic)
@@ -200,6 +200,7 @@ class UI:
     
     def chordColorDict(self, labels):
         dic = {}
+        labels.append("None")
         part = 255/len(labels)
         for i in range(0,len(labels)):
             dic[labels[i]] = (math.ceil(i*part), 255 - math.ceil(i*part), random.randrange(0,256,1))
