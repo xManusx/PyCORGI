@@ -119,7 +119,7 @@ class UI:
         filename = self.filepath.text()
         groundTruth = self.groundTruth.text()
         windowSize = float(self.windowsize.text())
-        hopSize = float(self.hopsize.text())
+        hopSize = float(self.hopsize.text()) * windowSize
         if(self.binary.isChecked()):
             use_harmonic = False
         else:
@@ -202,7 +202,6 @@ class UI:
         # Ground Truth
         if groundTruth != "":
             gtChords = []
-            print(groundTruth)
             with open(groundTruth, 'r') as f:
                 reader = csv.reader(f, delimiter=' ')
                 for row in reader:
