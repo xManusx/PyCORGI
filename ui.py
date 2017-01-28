@@ -1,12 +1,14 @@
 import sys
 import os
 from PyQt4.QtGui import *
+from PyQt4 import QtCore
 import math
 import matplotlib.pyplot as plt
 import random
 import recognition
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
+import transformer
 import synthesizer
 import csv
 
@@ -31,6 +33,14 @@ class UI:
         self.recognize_button.resize(self.recognize_button.sizeHint())
         self.recognize_button.move(self.width-100, self.height-50)
         self.recognize_button.clicked.connect(self.recognize)
+
+        #Info text field
+        self.infobox = QLabel(" ", self.w)
+        self.infobox.setFixedWidth(280)
+        self.infobox.move(self.width-400, self.height - 45)
+        self.infobox.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.infobox.repaint()
+        self.infobox.repaint()
 
         # Picture printer
         self.label1 = QLabel(self.w)
@@ -81,6 +91,10 @@ class UI:
         self.synth = QCheckBox("Synthesize Chords", self.w)
         self.synth.setChecked(False)
         self.synth.move(300, self.height - 130)       
+        #Use own chromas
+        self.chromas = QCheckBox("Use libRosa", self.w)
+        self.chromas.setChecked(True)
+        self.chromas.move(300, self.height - 110)
 
         # Radio Buttons  
         self.binary = QRadioButton("Binary Templates", self.w)
@@ -122,16 +136,42 @@ class UI:
             output = True
         else:
             output = False
+
+        if(self.chromas.isChecked()):
+            ownChromas = False
+        else:
+            ownchromas = True
+
         
+        infotext = "Opening '" + filename + "'..."
+        self.infobox.setText(infotext)
+        self.infobox.repaint()
+        self.infobox.repaint()
+
         samples, samplerate = recognition.openFile(filename)
         duration = len(samples)/samplerate
 
         if hpss:
+            self.infobox.setText("Doing HPSS...")
+            self.infobox.repaint()
+            self.infobox.repaint()
             samples, _ = recognition.HPSS(samples)
         windowSizeInSamples = windowSize*samplerate
-        hopSizeInSamples = hopSize*windowSizeInSamples
+        hopSizeInSamples = int(hopSize*windowSizeInSamples)
 
-        chromas = recognition.calculateChroma(samples, samplerate, windowSizeInSamples, hopSizeInSamples)
+        self.infobox.setText("Calculating chromas...")
+        self.infobox.repaint()
+        self.infobox.repaint()
+        ownChromas= True
+        chromas = None
+        if(ownChromas):
+            trans = transformer.Transformer(windowSizeInSamples, hopSizeInSamples, samplerate)
+            chromas = np.transpose(trans.chroma(trans.logFrequencySpectrogram(trans.spectrogram(trans.stft(samples)))))
+        else:
+            chromas = recognition.calculateChroma(samples, samplerate, windowSizeInSamples, hopSizeInSamples)
+        self.infobox.setText("Identifying chords...")
+        self.infobox.repaint()
+        self.infobox.repaint()
         chords, temps, labels = recognition.calculateSimilarities(chromas, use_harmonic)
         chordSequence = recognition.identifyMostProbableChordSequence(chords, labels, windowSize, hopSize)
 
@@ -144,6 +184,9 @@ class UI:
                 print("Chord " + i[0] + " from " + str(i[1]) + "s to " + str(i[2]) + "s.")
 
         if synth:
+            self.infobox.setText("Synthesizing output...")
+            sellf.infobox.repaint()
+            sellf.infobox.repaint()
             synthesizer.synthChords(chordSequence, labels, samples, samplerate)
 
         # Waveform
@@ -169,6 +212,7 @@ class UI:
             self.label3.setPixmap(pixmap3)
         else:
             self.label3.clear()
+        self.infobox.setText("Finished!")
         return None
 
     def wavToImg(self, samples, samplerate, windowsize):

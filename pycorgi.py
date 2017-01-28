@@ -1,13 +1,14 @@
 #!/usr/bin/env python
+
 #math stuff
 #import scipy.io.wavfile as wav
-#import numpy as np
 #import librosa
 
 #program stuff
 #import argparse
-#import warnings
-#warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
+import numpy as np
+import warnings
+warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 #only debug
 #import matplotlib.pyplot as plt
