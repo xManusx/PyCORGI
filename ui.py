@@ -98,12 +98,18 @@ class UI:
 
         # Radio Buttons  
         self.binary = QRadioButton("Binary Templates", self.w)
-        self.binary.move(10, self.height-110)
+        self.binary.move(10, self.height-120)
         self.binary.setChecked(True)
-        self.harmonic = QRadioButton("Harmonic Templates", self.w)
-        self.harmonic.move(10, self.height-90)
         self.binary.clicked.connect(self.clickedBinary)
+
+        self.harmonic = QRadioButton("Harmonic Templates (exp)", self.w)
+        self.harmonic.move(10, self.height-100)
         self.harmonic.clicked.connect(self.clickedHarmonic)
+
+        self.triangle = QRadioButton("Harmonic Templates (tri)", self.w)
+        self.triangle.move(10, self.height-80)
+        self.triangle.clicked.connect(self.clickedTriangle)
+
 
         self.colorDic = None
         self.w.show()
@@ -111,9 +117,15 @@ class UI:
     
     def clickedBinary(self):
         self.harmonic.setChecked(False)
+        self.triangle.setChecked(False)
 
     def clickedHarmonic(self):
         self.binary.setChecked(False)
+        self.triangle.setChecked(False)
+
+    def clickedTriangle(self):
+        self.binary.setChecked(False)
+        self.harmonic.setChecked(False)
 
     def recognize(self):
         filename = self.filepath.text()
@@ -121,9 +133,12 @@ class UI:
         windowSize = float(self.windowsize.text())
         hopSize = float(self.hopsize.text()) * windowSize
         if(self.binary.isChecked()):
-            use_harmonic = False
+            template_to_use = "bin"
+        elif(self.harmonic.isChecked()):
+            template_to_use = "exp"
         else:
-            use_harmonic = True
+            template_to_use = "tri"
+
         if self.hpss.isChecked():
             hpss = True
         else:
@@ -172,7 +187,7 @@ class UI:
         self.infobox.setText("Identifying chords...")
         self.infobox.repaint()
         self.infobox.repaint()
-        chords, temps, labels = recognition.calculateSimilarities(chromas, use_harmonic)
+        chords, temps, labels = recognition.calculateSimilarities(chromas, template_to_use)
         chordSequence = recognition.identifyMostProbableChordSequence(chords, labels, windowSize, hopSize)
 
         #color dictionary
