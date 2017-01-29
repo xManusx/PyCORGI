@@ -1,6 +1,7 @@
 import math
 import librosa
 import numpy as np
+import scipy.io.wavfile
 
 def synthChord(chordSequenceEntry,labels,samplerate):
     dic = {}
@@ -32,7 +33,7 @@ def synthChord(chordSequenceEntry,labels,samplerate):
     wave1 = np.sin(2*np.pi*t*FREQUENCY1)
     wave2 = np.sin(2*np.pi*t*FREQUENCY2)
     wave3 = np.sin(2*np.pi*t*FREQUENCY3)
-    return wave1+wave2+wave3
+    return np.array(wave1+wave2+wave3, dtype='f')
 
 
 def synthChords(chordSequence, labels, samples, samplerate):
@@ -47,7 +48,10 @@ def synthChords(chordSequence, labels, samples, samplerate):
         else:
           synthwav = np.concatenate((synthwav, synth))
 
-    synthwav = np.delete(synthwav, np.s_[len(samples)::], axis=0)
+    if len(synthwav) > len(samples):
+      synthwav = np.delete(synthwav, np.s_[len(samples)::], axis=0)
+    else:
+      samples = np.delete(samples, np.s_[len(synthwav)::], axis=0)
     
     ###Write to output.wav
     m = np.matrix([100*synthwav / np.linalg.norm(synthwav), samples])
