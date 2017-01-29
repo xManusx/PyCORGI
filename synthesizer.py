@@ -10,7 +10,7 @@ def synthChord(chordSequenceEntry,labels,samplerate):
         counter += 1
     chordIndex = dic[chordSequenceEntry[0]]
 
-    chord = 73 + (chordIndex % 12)
+    chord = 71 + (chordIndex % 12)
   
     FREQUENCY1 = math.pow(2, ((chord-69)/12.0))*440;
     FREQUENCY2 = 0.0
