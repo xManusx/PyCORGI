@@ -71,6 +71,15 @@ class UI:
         self.hopsize = QLineEdit("0.5", self.w)
         self.hopsize.move(10, self.height-150)
         self.hopsize.setFixedWidth(50)
+        # compressionRate
+        self.comprate = QLineEdit("10", self.w)
+        self.comprate.move(650, self.height - 170)
+        self.comprate.setFixedWidth(40)
+        # prefilter length
+        self.filterL = QLineEdit("10", self.w)
+        self.filterL.move(650, self.height - 150)
+        self.filterL.setFixedWidth(40)
+
         
         ## Labels for Textboxes
         self.windowsizeLabel = QLabel("Window Size (seconds)", self.w)
@@ -95,6 +104,15 @@ class UI:
         self.chromas = QCheckBox("Use libRosa", self.w)
         self.chromas.setChecked(True)
         self.chromas.move(300, self.height - 110)
+        #Use log compression
+        self.logComp = QCheckBox("Use log compression", self.w)
+        self.logComp.setChecked(True)
+        self.logComp.move(500, self.height - 170)
+        #Use prefiltering
+        self.prefiltering = QCheckBox("Use prefiltering", self.w)
+        self.prefiltering.setChecked(True)
+        self.prefiltering.move(500, self.height - 150)
+
 
         # Radio Buttons  
         self.binary = QRadioButton("Binary Templates", self.w)
@@ -184,6 +202,26 @@ class UI:
             chromas = np.transpose(trans.chroma(trans.logFrequencySpectrogram(trans.spectrogram(trans.stft(samples)))))
         else:
             chromas = recognition.calculateChroma(samples, samplerate, windowSizeInSamples, hopSizeInSamples)
+
+        # Logarithmic compression
+        if(self.logComp.isChecked()):
+            chromas = np.log(1+float(self.comprate.text())*chromas)
+        
+        # Prefiltering
+        if(self.prefiltering.isChecked()):
+            L = float(self.filterL.text())
+            chromasFiltered = np.empty(chromas.shape)
+            zeroPadsLeft = int(math.floor((L-1)/2))
+            zeroPadsRight = int(L-1 - math.floor((L-1)/2))
+            chromas = np.concatenate((np.zeros((12, zeroPadsLeft)), chromas), axis=1)
+            chromas = np.concatenate((chromas, np.zeros((12, zeroPadsRight))), axis =1)
+            for i in range(zeroPadsLeft, chromas.shape[1]-zeroPadsRight):
+                left = i - math.floor((L-1)/2)
+                right = i + L - 1 - math.floor((L-1)/2)
+                chromasFiltered[:, i-zeroPadsLeft]= np.sum(chromas[:,left:right+1], axis=1)
+            chromas = chromasFiltered
+            chromas = chromas/L
+
         self.infobox.setText("Identifying chords...")
         self.infobox.repaint()
         self.infobox.repaint()
