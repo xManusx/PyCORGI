@@ -39,12 +39,9 @@ def calculateSimilarities(chromas, templates_to_use="bin"):
 #windowsize and hopsize in seconds
 def identifyMostProbableChordSequence(chords, labels, windowsize, hopsize):
     seq = []
-    print(len(chords))
     for i in chords:
         seq.append(np.argmax(i))
-    print(len(seq))
     seq = np.array(seq)
-    print(len(seq)*hopsize)
     chordSequence = fusedChordSequence(seq, labels, windowsize, hopsize)
     return chordSequence
 
