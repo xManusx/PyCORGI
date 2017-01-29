@@ -185,8 +185,8 @@ class UI:
 
         if synth:
             self.infobox.setText("Synthesizing output...")
-            sellf.infobox.repaint()
-            sellf.infobox.repaint()
+            self.infobox.repaint()
+            self.infobox.repaint()
             synthesizer.synthChords(chordSequence, labels, samples, samplerate)
 
         # Waveform
