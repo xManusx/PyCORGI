@@ -190,7 +190,7 @@ class UI:
             self.infobox.repaint()
             samples, _ = recognition.HPSS(samples)
         windowSizeInSamples = windowSize*samplerate
-        hopSizeInSamples = int(hopSize*windowSizeInSamples)
+        hopSizeInSamples = int(float(self.hopsize.text())*windowSizeInSamples)
 
         self.infobox.setText("Calculating chromas...")
         self.infobox.repaint()
