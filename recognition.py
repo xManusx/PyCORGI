@@ -24,11 +24,14 @@ def calculateChroma(samples, samplerate, windowsize, hopsize):
     chromas = librosa.feature.chroma_stft(y=samples, sr=samplerate, n_fft=windowsize, hop_length=hopsize, tuning=librosa.core.estimate_tuning(y=samples, sr=samplerate))
     return chromas
 
-def calculateSimilarities(chromas, use_harmonics=False):
-    if(use_harmonics):
-        temps, labels = templates.harmonics_norm()
-    else:
+def calculateSimilarities(chromas, templates_to_use="bin"):
+    if(templates_to_use=="bin"):
         temps, labels = templates.binary()
+    elif(templates_to_use=="exp"):
+        temps, labels = templates.harmonics()
+    else:
+        temps, labels = templates.triangle()
+
     chords = recognition(temps, np.transpose(chromas))
     return chords, temps, labels
     #simple_text_output(chords,labels)

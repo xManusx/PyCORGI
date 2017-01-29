@@ -71,6 +71,15 @@ class UI:
         self.hopsize = QLineEdit("0.5", self.w)
         self.hopsize.move(10, self.height-150)
         self.hopsize.setFixedWidth(50)
+        # compressionRate
+        self.comprate = QLineEdit("10", self.w)
+        self.comprate.move(650, self.height - 170)
+        self.comprate.setFixedWidth(40)
+        # prefilter length
+        self.filterL = QLineEdit("10", self.w)
+        self.filterL.move(650, self.height - 150)
+        self.filterL.setFixedWidth(40)
+
         
         ## Labels for Textboxes
         self.windowsizeLabel = QLabel("Window Size (seconds)", self.w)
@@ -95,15 +104,30 @@ class UI:
         self.chromas = QCheckBox("Use libRosa", self.w)
         self.chromas.setChecked(True)
         self.chromas.move(300, self.height - 110)
+        #Use log compression
+        self.logComp = QCheckBox("Use log compression", self.w)
+        self.logComp.setChecked(True)
+        self.logComp.move(500, self.height - 170)
+        #Use prefiltering
+        self.prefiltering = QCheckBox("Use prefiltering", self.w)
+        self.prefiltering.setChecked(True)
+        self.prefiltering.move(500, self.height - 150)
+
 
         # Radio Buttons  
         self.binary = QRadioButton("Binary Templates", self.w)
-        self.binary.move(10, self.height-110)
+        self.binary.move(10, self.height-120)
         self.binary.setChecked(True)
-        self.harmonic = QRadioButton("Harmonic Templates", self.w)
-        self.harmonic.move(10, self.height-90)
         self.binary.clicked.connect(self.clickedBinary)
+
+        self.harmonic = QRadioButton("Harmonic Templates (exp)", self.w)
+        self.harmonic.move(10, self.height-100)
         self.harmonic.clicked.connect(self.clickedHarmonic)
+
+        self.triangle = QRadioButton("Harmonic Templates (tri)", self.w)
+        self.triangle.move(10, self.height-80)
+        self.triangle.clicked.connect(self.clickedTriangle)
+
 
         self.colorDic = None
         self.w.show()
@@ -111,9 +135,15 @@ class UI:
     
     def clickedBinary(self):
         self.harmonic.setChecked(False)
+        self.triangle.setChecked(False)
 
     def clickedHarmonic(self):
         self.binary.setChecked(False)
+        self.triangle.setChecked(False)
+
+    def clickedTriangle(self):
+        self.binary.setChecked(False)
+        self.harmonic.setChecked(False)
 
     def recognize(self):
         filename = self.filepath.text()
@@ -121,9 +151,12 @@ class UI:
         windowSize = float(self.windowsize.text())
         hopSize = float(self.hopsize.text()) * windowSize
         if(self.binary.isChecked()):
-            use_harmonic = False
+            template_to_use = "bin"
+        elif(self.harmonic.isChecked()):
+            template_to_use = "exp"
         else:
-            use_harmonic = True
+            template_to_use = "tri"
+
         if self.hpss.isChecked():
             hpss = True
         else:
@@ -169,10 +202,30 @@ class UI:
             chromas = np.transpose(trans.chroma(trans.logFrequencySpectrogram(trans.spectrogram(trans.stft(samples)))))
         else:
             chromas = recognition.calculateChroma(samples, samplerate, windowSizeInSamples, hopSizeInSamples)
+
+        # Logarithmic compression
+        if(self.logComp.isChecked()):
+            chromas = np.log(1+float(self.comprate.text())*chromas)
+        
+        # Prefiltering
+        if(self.prefiltering.isChecked()):
+            L = float(self.filterL.text())
+            chromasFiltered = np.empty(chromas.shape)
+            zeroPadsLeft = int(math.floor((L-1)/2))
+            zeroPadsRight = int(L-1 - math.floor((L-1)/2))
+            chromas = np.concatenate((np.zeros((12, zeroPadsLeft)), chromas), axis=1)
+            chromas = np.concatenate((chromas, np.zeros((12, zeroPadsRight))), axis =1)
+            for i in range(zeroPadsLeft, chromas.shape[1]-zeroPadsRight):
+                left = i - math.floor((L-1)/2)
+                right = i + L - 1 - math.floor((L-1)/2)
+                chromasFiltered[:, i-zeroPadsLeft]= np.sum(chromas[:,left:right+1], axis=1)
+            chromas = chromasFiltered
+            chromas = chromas/L
+
         self.infobox.setText("Identifying chords...")
         self.infobox.repaint()
         self.infobox.repaint()
-        chords, temps, labels = recognition.calculateSimilarities(chromas, use_harmonic)
+        chords, temps, labels = recognition.calculateSimilarities(chromas, template_to_use)
         chordSequence = recognition.identifyMostProbableChordSequence(chords, labels, windowSize, hopSize)
 
         #color dictionary
