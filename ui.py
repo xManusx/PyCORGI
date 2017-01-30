@@ -182,6 +182,7 @@ class UI:
         self.infobox.repaint()
 
         samples, samplerate = recognition.openFile(filename)
+        orig_samples = samples
         duration = len(samples)/samplerate
 
         if hpss:
@@ -240,7 +241,7 @@ class UI:
             self.infobox.setText("Synthesizing output...")
             self.infobox.repaint()
             self.infobox.repaint()
-            synthesizer.synthChords(chordSequence, labels, samples, samplerate)
+            synthesizer.synthChords(chordSequence, labels, orig_samples, samplerate)
 
         # Waveform
         self.wavToImg(samples, samplerate, windowSize)
