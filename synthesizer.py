@@ -4,19 +4,15 @@ import numpy as np
 import scipy.io.wavfile
 
 def synthChord(chordSequenceEntry,labels,samplerate):
-    dic = {}
-    counter = 73
-    for i in labels:
-        dic[i] = counter
-        counter += 1
-    chordIndex = dic[chordSequenceEntry[0]]
+    
+    chordIndex = labels.index(chordSequenceEntry[0])
 
-    chord = 71 + (chordIndex % 12)
+    chord = 72 + (chordIndex % 12)
   
     FREQUENCY1 = math.pow(2, ((chord-69)/12.0))*440;
     FREQUENCY2 = 0.0
     FREQUENCY3 = math.pow(2, ((chord+7-69)/12.0))*440;
-  
+    
     ##major chord
     if chordIndex < 12:
         FREQUENCY2 = math.pow(2, ((chord+4-69)/12.0))*440;
